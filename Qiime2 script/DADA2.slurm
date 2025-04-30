@@ -4,6 +4,8 @@
 #SBATCH --time=04:00:00
 #SBATCH --job-name=DADA2
 #SBATCH -A microbiome
+module load conda
+conda activate qiime2-amplicon-2024.10
 qiime dada2 denoise-paired \
   --i-demultiplexed-seqs demux.qza \
   --p-trim-left-f 0 \
