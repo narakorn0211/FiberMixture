@@ -1,0 +1,62 @@
+#RandomForest#
+
+cd $RCAC_SCRATCH
+cd qiime
+mkdir rf-classifier
+sinteractive -A microbiome -t 2:30:00 -n4
+module load conda
+conda activate qiime2-amplicon-2024.10
+conda info
+
+#Copy metadata.tsv and table.qza files from your path to this directory
+
+qiime sample-classifier classify-samples \
+  --i-table table.qza \
+  --m-metadata-file metadata.tsv \
+  --m-metadata-column fiber \
+  --p-optimize-feature-selection \
+  --p-parameter-tuning \
+  --p-estimator RandomForestClassifier \
+  --p-n-estimators 20 \
+  --p-random-state 123 \
+  --output-dir my-project-classifier
+
+qiime metadata tabulate \
+  --m-input-file my-project-classifier/predictions.qza \
+  --o-visualization my-project-classifier/predictions.qzv
+
+qiime metadata tabulate \
+  --m-input-file my-project-classifier/probabilities.qza \
+  --o-visualization my-project-classifier/probabilities.qzv
+
+qiime metadata tabulate \ --m-input-file my-project-classifier/feature_importance.qza \
+  --o-visualization my-project-classifier/feature_importance.qzv
+
+qiime feature-table filter-features \
+  --i-table table.qza \
+  --m-metadata-file my-project-classifier/feature_importance.qza \
+  --o-filtered-table my-project-classifier/important-feature-table.qza
+
+qiime sample-classifier heatmap \
+  --i-table table.qza \
+  --i-importance my-project-classifier/feature_importance.qza \
+  --m-sample-metadata-file metadata.tsv \
+  --m-sample-metadata-column fiber \
+  --p-group-samples \
+  --p-feature-count 30 \
+  --o-filtered-table my-project-classifier/important-feature-table-top-30.qza \
+  --o-heatmap my-project-classifier/important-feature-heatmap.qzv
+
+qiime sample-classifier heatmap \
+--i-table table.qza \
+--i-importance my-project-classifier/feature_importance.qza  \
+--m-sample-metadata-file metadata.tsv  \
+--m-sample-metadata-column fiber \
+--m-feature-metadata-file taxonomy.qza \
+--m-feature-metadata-column Taxon \
+--p-group-samples  \
+--p-feature-count 30  \
+--o-filtered-table my-project-classifier/important-feature-table-taxonomy-top-30.qza \
+--o-heatmap my-project-classifier/important-feature-heatmap-taxonomy.qzv
+
+
