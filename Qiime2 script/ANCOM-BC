@@ -1,0 +1,21 @@
+#ANCOM BC#
+qiime taxa collapse \
+  --i-table table.qza \
+  --i-taxonomy taxonomy.qza \
+  --p-level 6 \
+  --o-collapsed-table table-l6.qza
+ 
+qiime composition ancombc \
+  --i-table table-l6.qza \
+  --m-metadata-file metadata.tsv \
+  --p-formula 'fiber' \
+  --o-differentials ancombc_results.qza
+ 
+qiime composition da-barplot \
+  --i-data ancombc_results.qza \
+  --p-significance-threshold 0.05 \
+  --o-visualization ancombc-barplot.qzv
+ 
+qiime composition tabulate \
+  --i-data ancombc_results.qza \
+  --o-visualization ancombc-summary.qzv
